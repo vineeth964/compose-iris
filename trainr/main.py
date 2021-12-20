@@ -3,7 +3,7 @@ import os
 import requests
 from fastapi import FastAPI
 from pydantic import BaseModel
-from utils import init_model, train_model
+from utils import init_model, train_model, train_bug_model
 from typing import List
 
 
@@ -24,6 +24,29 @@ class TrainIn(BaseModel):
     petal_width: float
     flower_class: str
 
+class BugTrainIn(BaseModel):
+    lines_of_code: float
+    cyclomatic_complexity: float
+    essential_complexity: float
+    design_complexity : float
+    totalo_perators_operands : float
+    volume : float
+    program_length : float
+    difficulty : float
+    intelligence  : float
+    effort  : float
+    b  : float 
+    time_estimator  : float
+    lOCode    : float
+    lOComment : float
+    lOBlank  : float
+    lOCodeAndComment: float
+    uniq_Op  : float
+    uniq_Opnd  : float
+    total_Op  : float
+    total_Opnd : float
+    branchCount : float
+    defects : bool
 
 # Route definitions
 @app.get("/ping")
@@ -42,7 +65,14 @@ def train(data: List[TrainIn]):
     response = requests.post(f"{PREDICTR_ENDPOINT}/reload_model")
     return {"detail": "Training successful"}
 
-
+@app.post("/trainBug", status_code=200)
+def trainBug(data: List[BugTrainIn]):
+    train_bug_model(data)
+    # tell predictr to reload the model
+    response = requests.post(f"{PREDICTR_ENDPOINT}/reload_bug_model")
+    return {"detail": "Training successful"}
+    
+    
 # Main function to start the app when main.py is called
 if __name__ == "__main__":
     # Uvicorn is used to run the server and listen for incoming API requests on 0.0.0.0:8888
